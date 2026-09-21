@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Love Letter for My Wife 💌</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Google Fonts: Dancing Script & Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .font-handwritten {
+      font-family: 'Dancing Script', cursive;
+    }
+
+    .font-romantic {
+      font-family: 'Great Vibes', cursive;
+    }
+
+    /* Shifting Purple Background */
+    body {
+      min-height: 100vh;
+      width: 100vw;
+      overflow-x: hidden;
+      background: linear-gradient(-45deg, #1e0536, #3b0764, #581c87, #7e22ce, #9333ea, #a855f7, #3b0764);
+      background-size: 400% 400%;
+      animation: purpleGradient 14s ease infinite;
+    }
+
+    @keyframes purpleGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    #heartCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Floating Heart Tap Effect */
+    .tap-heart {
+      position: fixed;
+      font-size: 24px;
+      color: #f43f5e;
+      pointer-events: none;
+      animation: floatUpFade 1.2s ease-out forwards;
+      z-index: 9999;
+    }
+
+    @keyframes floatUpFade {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+      50% { opacity: 0.9; transform: translate(-50%, -80px) scale(1.3) rotate(12deg); }
+      100% { opacity: 0; transform: translate(-50%, -140px) scale(1) rotate(-12deg); }
+    }
+
+    /* Glassmorphism elements */
+    .glass-card {
+      background: rgba(28, 12, 52, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* 3D Interactive Envelope Styles */
+    .envelope-wrapper {
+      position: relative;
+      cursor: pointer;
+      perspective: 1000px;
+    }
+
+    .envelope {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      background: #581c87;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.2);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    @media (min-width: 640px) {
+      .envelope {
+        width: 480px;
+        height: 300px;
+      }
+    }
+
+    .envelope:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 28px 50px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    /* Flap & Origami Triangle Layers */
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-top: 130px solid #7e22ce;
+      transform-origin: top;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 5;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    }
+
+    @media (min-width: 640px) {
+      .envelope-flap {
+        border-left-width: 240px;
+        border-right-width: 240px;
+        border-top-width: 180px;
+      }
+    }
+
+    .envelope-pocket-left {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 160px solid #3b0764;
+      border-top: 110px solid transparent;
+      border-bottom: 110px solid #3b0764;
+      border-radius: 0 0 0 16px;
+      z-index: 3;
+    }
+
+    .envelope-pocket-right {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-right: 160px solid #3b0764;
+      border-top: 110px solid transparent;
+      border-bottom: 110px solid #3b0764;
+      border-radius: 0 0 16px 0;
+      z-index: 3;
+    }
+
+    .envelope-pocket-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      border-bottom: 120px solid #2e1065;
+      border-left: 160px solid transparent;
+      border-right: 160px solid transparent;
+      border-radius: 0 0 16px 16px;
+      z-index: 4;
+    }
+
+    @media (min-width: 640px) {
+      .envelope-pocket-left {
+        border-left-width: 240px;
+        border-top-width: 150px;
+        border-bottom-width: 150px;
+      }
+      .envelope-pocket-right {
+        border-right-width: 240px;
+        border-top-width: 150px;
+        border-bottom-width: 150px;
+      }
+      .envelope-pocket-bottom {
+        border-bottom-width: 160px;
+        border-left-width: 240px;
+        border-right-width: 240px;
+      }
+    }
+
+    /* Wax Seal Button */
+    .wax-seal {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px;
+      height: 52px;
+      background: radial-gradient(circle, #e11d48, #9f1239);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4), inset 0 0 8px rgba(255,255,255,0.4);
+      z-index: 6;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    @media (min-width: 640px) {
+      .wax-seal {
+        top: 140px;
+        width: 64px;
+        height: 64px;
+        font-size: 26px;
+      }
+    }
+
+    .wax-seal:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    /* Open State Transformations */
+    .envelope-wrapper.open .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-wrapper.open .wax-seal {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Letter inside envelope */
+    .letter-preview {
+      position: absolute;
+      top: 15px;
+      left: 5%;
+      width: 90%;
+      height: 85%;
+      background: #fdf4ff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 2;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #701a75;
+      text-align: center;
+    }
+
+    .envelope-wrapper.open .letter-preview {
+      transform: translateY(-160px) scale(1.05);
+    }
+
+    @media (min-width: 640px) {
+      .envelope-wrapper.open .letter-preview {
+        transform: translateY(-220px) scale(1.05);
+      }
+    }
+
+    /* Pulse Bounce on Tap Hint */
+    @keyframes gentleBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .bounce-hint {
+      animation: gentleBounce 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="text-white flex flex-col items-center justify-between min-h-screen p-4 sm:p-6 md:p-8 relative select-none">
+
+  <!-- Background Particle Canvas -->
+  <canvas id="heartCanvas"></canvas>
+
+  <header class="w-full max-w-4xl z-20 flex justify-between items-center mb-4">
+    <div class="flex items-center gap-2 bg-purple-950/70 border border-purple-400/30 px-4 py-2 rounded-full backdrop-blur-md">
+      <i class="fa-solid fa-heart text-pink-500 animate-pulse"></i>
+      <span class="text-xs sm:text-sm font-semibold text-pink-200 tracking-wider">A SPECIAL SURPRISE FOR YOU</span>
+    </div>
+
+    <!-- Music Player Controls -->
+    <button id="musicBtn" onclick="toggleAudio()" class="glass-btn hover:bg-purple-600/40 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-medium flex items-center gap-2 transition duration-300 transform active:scale-95 shadow-lg">
+      <i id="musicIcon" class="fa-solid fa-music text-pink-300"></i>
+      <span id="musicText">Play Music 🎵</span>
+    </button>
+  </header>
+
+  <main class="w-full max-w-4xl z-10 my-auto flex flex-col items-center justify-center">
+
+    <!-- Interactive 3D Envelope Section -->
+    <div id="envelopeContainer" class="flex flex-col items-center justify-center my-8">
+      
+      <p class="text-pink-200 text-sm sm:text-base font-medium mb-6 bounce-hint flex items-center gap-2">
+        <i class="fa-solid fa-hand-pointer text-pink-400"></i> Tap or Click the Seal to Open Your Letter 💌
+      </p>
+
+      <div class="envelope-wrapper" id="envelopeWrapper" onclick="openEnvelope()">
+        <div class="envelope">
+          
+          <!-- Flap -->
+          <div class="envelope-flap"></div>
+          
+          <!-- Wax Seal Button -->
+          <div class="wax-seal">
+            <i class="fa-solid fa-heart"></i>
+          </div>
+
+          <!-- Pockets -->
+          <div class="envelope-pocket-left"></div>
+          <div class="envelope-pocket-right"></div>
+          <div class="envelope-pocket-bottom"></div>
+
+          <!-- Preview Card Inside -->
+          <div class="letter-preview">
+            <i class="fa-solid fa-envelope-open-text text-3xl sm:text-4xl text-pink-600 mb-2"></i>
+            <h3 class="text-lg sm:text-xl font-bold font-romantic text-purple-900">For My Dearest Wife</h3>
+            <p class="text-xs sm:text-sm font-handwritten text-purple-700 mt-1">Tap anywhere to read full message...</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Unfolded Love Letter Card (Initially Hidden) -->
+    <div id="letterCard" class="glass-card rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden hidden transition-all duration-700 w-full max-w-4xl">
+      
+      <!-- Decorative Glow Orbs -->
+      <div class="absolute -top-20 -left-20 w-56 h-56 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -right-20 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Side: Profile Frame & Main Heading -->
+        <div class="lg:col-span-5 flex flex-col items-center text-center space-y-5">
+          
+          <div class="relative group cursor-pointer" onclick="triggerUpload('wifeUpload')">
+            <div class="absolute -inset-1.5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-full blur-md opacity-80 group-hover:opacity-100 transition duration-500"></div>
+            
+            <img id="wifeImg" src="wife.jpg" onerror="handleImgError(this)" alt="Wife" class="relative w-44 h-44 sm:w-56 sm:h-56 rounded-full object-cover border-4 border-pink-300 shadow-2xl transition duration-300 group-hover:scale-105">
+            
+            <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition duration-300 text-xs text-pink-200">
+              <i class="fa-solid fa-camera text-2xl mb-1"></i>
+              <span>Click to Upload Photo</span>
+            </div>
+            <input type="file" id="wifeUpload" accept="image/*" class="hidden" onchange="previewImg(event, 'wifeImg')">
+          </div>
+
+          <div class="space-y-2">
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-pink-500/20 text-pink-300 border border-pink-500/30">
+              <i class="fa-solid fa-crown mr-1"></i> My Eternal Queen
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-bold font-romantic text-pink-300 leading-tight">
+              ILOVEYOU and ALWAYS will be my WIFE
+            </h1>
+          </div>
+        </div>
+
+        <!-- Right Side: Handwritten Heartfelt Message & Sub-image -->
+        <div class="lg:col-span-7 flex flex-col justify-between space-y-6 bg-purple-950/40 p-5 sm:p-8 rounded-2xl border border-purple-500/20">
+          
+          <div class="relative">
+            <i class="fa-solid fa-quote-left text-3xl sm:text-4xl text-pink-500/30 absolute -top-3 -left-2"></i>
+            <p class="text-sm sm:text-base md:text-lg text-pink-100/95 leading-relaxed font-light text-justify pt-4 px-2 sm:px-4">
+              Hello my Love, yung una kong gawa hindi payun lahat mahal eto ginawa ko na to eto talaga ang totoo sa mga code ko. Sorry mahal ko natalagan ako sa pag edit HAHAHAHA pero ang masasabi ko mahal na mahal ko kayong dalawa ng baby natin mahal ko.
+              <br><br>
+               Mahal ko sorry po ulit sa mga actions ko na ang gusto molang naman po ay hatian ako sa bills pero imbis na ma appreciate yung love mo na yun sakin hindi kasi punong puno ng pride tong utak ko na dapat lalake ang gumagastos sa lahat. Pero andyan ka parin mahal parin ako at pinapatawad ako sa lahat. Sorry mahal ko nag paka selfish ako at tinaasan ang pride kaya mahal ko have a little more patients with me huh iloveyou so much more than a word can say.
+              <br><br>
+              maraming salamat po sa lahat mahal ko dahil kung dika dumating sigurado yung buhay ko wala na ngayon. Salamat mahal ko kasi binigyan mo ng dahilan yung buhay ko para mambuhay at lumaban. Salamat kasi binuksan mo yung mundo mo para sakin at hinayaan ako pumasok sa buhay nyo ngayon ni baby Mahal ko. Salamat mahal ko.
+              <br><br>
+              Mahal na mahal kita asawa ko gagawin ko ang lahat para sa inyo ni baby hindi ko kayo susukuan hanggang sa ma ayos na natin lahat mahal ko gagawin natin lahat para matupad mga pangarap natin sa baby natin  mahal ko. MAHAL NA MAHAL NA MAHAL NA MAHAL NA MAHAL KITA ASAWA KO ❤️
+            </p>
+          </div>
+
+          <!-- Bottom Action Section: Love Memory + Proposal Button -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-purple-500/20">
+            
+            <div class="relative group cursor-pointer flex items-center gap-3" onclick="triggerUpload('loveUpload')">
+              <div class="relative w-20 h-20 rounded-full overflow-hidden border-2 border-pink-400 shadow-lg shrink-0">
+                <img id="loveImg" src="love.jpg" onerror="handleImgError(this)" alt="Love Memory" class="w-full h-full object-cover transition duration-300 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition duration-300 text-white text-xs">
+                  <i class="fa-solid fa-camera"></i>
+                </div>
+              </div>
+              <input type="file" id="loveUpload" accept="image/*" class="hidden" onchange="previewImg(event, 'loveImg')">
+              
+              <div class="text-left">
+                <h4 class="text-sm font-semibold text-pink-200">Our Beautiful Family</h4>
+                <p class="text-xs text-purple-300">You & Baby = My Everything 👨‍👩‍👧</p>
+              </div>
+            </div>
+
+            <!-- Modal Trigger Button -->
+            <button onclick="openProposalModal()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-sm font-semibold rounded-xl shadow-lg hover:shadow-pink-500/40 transition duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-heart-circle-check text-base animate-pulse"></i>
+              <span>Will You Love Me Forever?</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Proposal Modal with Evasive "No" Button -->
+  <div id="proposalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md hidden transition-opacity duration-300">
+    <div class="glass-card max-w-md w-full rounded-3xl p-6 sm:p-8 text-center relative border border-pink-500/40 shadow-2xl">
+      
+      <button onclick="closeProposalModal()" class="absolute top-4 right-4 text-purple-300 hover:text-white transition">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+
+      <div class="w-16 h-16 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-pink-400/40">
+        <i class="fa-solid fa-heart text-3xl text-pink-400 animate-bounce"></i>
+      </div>
+
+      <h3 class="text-2xl sm:text-3xl font-bold font-romantic text-pink-200 mb-2">Pangako Ko Sayo...</h3>
+      <p class="text-sm text-purple-200 mb-8 leading-relaxed">
+        Will you stay by my side and keep loving me forever as my wife?
+      </p>
+
+      <!-- Button Container for Yes / Evasive No -->
+      <div id="modalBtnGroup" class="relative min-h-[120px] flex items-center justify-center gap-6">
+        <!-- YES Button -->
+        <button id="yesBtn" onclick="handleYesClick()" class="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition duration-200 transform hover:scale-105 active:scale-95 flex items-center gap-2 z-10">
+          <i class="fa-solid fa-check"></i> YES!
+        </button>
+
+        <!-- EVASIVE NO Button -->
+        <button id="noBtn" onmouseover="moveNoBtn()" onclick="moveNoBtn()" ontouchstart="moveNoBtn(event)" class="px-8 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg transition duration-150 absolute z-20">
+          No 😜
+        </button>
+      </div>
+
+      <!-- Success Celebration Message -->
+      <div id="successMessage" class="hidden space-y-4 pt-2">
+        <div class="text-4xl">🥰💖🎉</div>
+        <h4 class="text-2xl font-bold text-pink-300 font-romantic">I Love You So Much Asawa Ko!</h4>
+        <p class="text-xs text-purple-200 leading-relaxed">Salamat sa walang sawang pagmamahal. Gagawin ko ang lahat para maging masaya kayo ni baby!</p>
+        <button onclick="closeProposalModal()" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition">
+          Close with a Kiss 😘
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="w-full max-w-4xl z-10 text-center mt-6 py-2 text-xs text-purple-300/80">
+    Designed with eternal love for my wife & baby • <i class="fa-solid fa-heart text-pink-400 inline"></i>
+  </footer>
+
+  <script>
+    /* 1. HEART CANVAS PARTICLES */
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    let hearts = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class HeartParticle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + 20;
+        this.size = Math.random() * 12 + 8;
+        this.speedY = Math.random() * 1.5 + 0.6;
+        this.speedX = (Math.random() - 0.5) * 0.8;
+        this.opacity = Math.random() * 0.7 + 0.3;
+        this.color = `hsla(${Math.random() * 50 + 310}, 85%, 65%, ${this.opacity})`;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+      }
+
+      update() {
+        this.y -= this.speedY;
+        this.x += Math.sin(this.y * 0.01) + this.speedX;
+        this.rotation += this.rotationSpeed;
+
+        if (this.y < -30 || this.x < -30 || this.x > canvas.width + 30) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        const topCurveHeight = this.size * 0.3;
+        ctx.moveTo(0, topCurveHeight);
+        ctx.bezierCurveTo(0, 0, -this.size / 2, 0, -this.size / 2, topCurveHeight);
+        ctx.bezierCurveTo(-this.size / 2, (this.size + topCurveHeight) / 2, 0, this.size, 0, this.size);
+        ctx.bezierCurveTo(0, this.size, this.size / 2, (this.size + topCurveHeight) / 2, this.size / 2, topCurveHeight);
+        ctx.bezierCurveTo(this.size / 2, 0, 0, 0, 0, topCurveHeight);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function initParticles() {
+      hearts = [];
+      const count = Math.min(Math.floor(window.innerWidth / 22), 40);
+      for (let i = 0; i < count; i++) {
+        const heart = new HeartParticle();
+        heart.y = Math.random() * canvas.height;
+        hearts.push(heart);
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hearts.forEach(heart => {
+        heart.update();
+        heart.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    animateParticles();
+
+    /* 2. TAP/CLICK SPAWN HEART EFFECT */
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('button') || e.target.closest('input')) return;
+
+      const heart = document.createElement('div');
+      heart.className = 'tap-heart fa-solid fa-heart';
+      heart.style.left = `${e.clientX}px`;
+      heart.style.top = `${e.clientY}px`;
+      document.body.appendChild(heart);
+
+      setTimeout(() => heart.remove(), 1200);
+    });
+
+    /* 3. ENVELOPE OPENING ANIMATION & AUDIO SFX */
+    let isEnvelopeOpen = false;
+
+    function openEnvelope() {
+      if (isEnvelopeOpen) return;
+      isEnvelopeOpen = true;
+
+      const wrapper = document.getElementById('envelopeWrapper');
+      const envelopeContainer = document.getElementById('envelopeContainer');
+      const letterCard = document.getElementById('letterCard');
+
+      // Play paper open sound chime
+      playEnvelopeChime();
+
+      // Start music automatically on interaction
+      if (!isPlayingAudio) {
+        toggleAudio();
+      }
+
+      // Add flap opening class
+      wrapper.classList.add('open');
+
+      // Smooth transition to full letter card
+      setTimeout(() => {
+        envelopeContainer.style.opacity = '0';
+        envelopeContainer.style.transition = 'opacity 0.6s ease';
+
+        setTimeout(() => {
+          envelopeContainer.classList.add('hidden');
+          letterCard.classList.remove('hidden');
+          letterCard.style.opacity = '0';
+          letterCard.style.transform = 'translateY(20px)';
+
+          setTimeout(() => {
+            letterCard.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            letterCard.style.opacity = '1';
+            letterCard.style.transform = 'translateY(0)';
+          }, 50);
+
+        }, 600);
+      }, 900);
+    }
+
+    function playEnvelopeChime() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const notes = [440, 554.37, 659.25, 880];
+      notes.forEach((freq, i) => {
+        setTimeout(() => playTone(freq, 1.2), i * 120);
+      });
+    }
+
+    /* 4. ROMANTIC MUSIC SYNTHESIZER */
+    let audioCtx = null;
+    let isPlayingAudio = false;
+    let audioInterval = null;
+
+    function toggleAudio() {
+      const musicIcon = document.getElementById('musicIcon');
+      const musicText = document.getElementById('musicText');
+
+      if (!isPlayingAudio) {
+        startMusic();
+        isPlayingAudio = true;
+        musicIcon.className = "fa-solid fa-pause text-pink-300";
+        musicText.innerText = "Pause Music 🎵";
+      } else {
+        stopMusic();
+        isPlayingAudio = false;
+        musicIcon.className = "fa-solid fa-music text-pink-300";
+        musicText.innerText = "Play Music 🎵";
+      }
+    }
+
+    function startMusic() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const notes = [261.63, 329.63, 392.00, 493.88, 440.00, 293.66, 369.99];
+      let step = 0;
+
+      audioInterval = setInterval(() => {
+        if (!isPlayingAudio) return;
+        const note = notes[step % notes.length];
+        playTone(note, 2.0);
+        if (step % 2 === 0) playTone(note * 1.5, 2.5);
+        step++;
+      }, 850);
+    }
+
+    function playTone(freq, duration) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.07, audioCtx.currentTime + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (err) {
+        console.log("Audio notice:", err);
+      }
+    }
+
+    function stopMusic() {
+      if (audioInterval) {
+        clearInterval(audioInterval);
+        audioInterval = null;
+      }
+    }
+
+    /* 5. EVASIVE "NO" BUTTON & PROPOSAL MODAL logic */
+    const proposalModal = document.getElementById('proposalModal');
+    const noBtn = document.getElementById('noBtn');
+
+    function openProposalModal() {
+      proposalModal.classList.remove('hidden');
+      noBtn.style.position = 'static';
+      noBtn.style.left = 'auto';
+      noBtn.style.top = 'auto';
+      document.getElementById('modalBtnGroup').classList.remove('hidden');
+      document.getElementById('successMessage').classList.add('hidden');
+    }
+
+    function closeProposalModal() {
+      proposalModal.classList.add('hidden');
+    }
+
+    function moveNoBtn(event) {
+      if (event) event.preventDefault();
+
+      const btnGroup = document.getElementById('modalBtnGroup');
+      const groupRect = btnGroup.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const maxX = groupRect.width - btnRect.width - 20;
+      const maxY = groupRect.height - btnRect.height - 20;
+
+      const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = `${randomX}px`;
+      noBtn.style.top = `${randomY}px`;
+    }
+
+    function handleYesClick() {
+      document.getElementById('modalBtnGroup').classList.add('hidden');
+      document.getElementById('successMessage').classList.remove('hidden');
+
+      if (audioCtx) {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          setTimeout(() => playTone(freq, 1.5), idx * 150);
+        });
+      }
+
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 140,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#f43f5e', '#ec4899', '#a855f7', '#f472b6']
+        });
+      }
+    }
+
+    /* 6. IMAGE FALLBACKS AND FILE UPLOADS */
+    function triggerUpload(id) {
+      document.getElementById(id).click();
+    }
+
+    function previewImg(event, targetId) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          document.getElementById(targetId).src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function handleImgError(img) {
+      img.onerror = null;
+      img.src = 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=500&q=80';
+    }
+
+    document.body.addEventListener('click', function initAudioContext() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      document.body.removeEventListener('click', initAudioContext);
+    }, { once: true });
+  </script>
+</body>
+</html>
